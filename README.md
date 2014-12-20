@@ -1,8 +1,6 @@
-# Lski-Request-Basic
+# Lski-Request
 
 A Promise based ajax request helper.
-
-
 
 ## Installation
 
