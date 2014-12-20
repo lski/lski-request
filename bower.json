@@ -1,0 +1,25 @@
+{
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "src",
+        ".gitignore",
+        "gulpfile.js",
+        "package.json"
+    ],
+    "name": "lski-request",
+    "version": "1.0.0",
+    "homepage": "https://github.com/lski/lski-requestjs",
+    "description": "A Promise based ajax request helper",
+    "author": "dev@lski.co.uk <dev@lski.co.uk>",
+    "keywords": [
+        "Promise",
+        "ajax",
+        "request"
+    ],
+    "license": "MIT",
+    "main": "dist/lski-request.js"
+}
