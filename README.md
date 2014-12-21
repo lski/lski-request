@@ -1,10 +1,16 @@
 # Lski-Request
 
-A Promise based ajax request helper.
+An ajax module that returns a Promise object from a simple function call.
+
+It tries to be as unopinionated as possible. However due to most requests being made using JSON objects, two default headers (content-type and accept) are automatically set for convenience (see section 'Options' below). These are easy to 'unset' at the global level or override on a pre request basis, like all options.
 
 ## Installation
 
 bower install lski-request --save
+
+or
+
+Grab the minified file from [dist/lski-request.js](https://github.com/lski/lski-request/blob/master/dist/lski-request.js) there is also an un-minified file [dist/lski-request.debug.js](https://github.com/lski/lski-request/blob/master/dist/lski-request.debug.js)
 
 ## Basic Usage
 
@@ -22,10 +28,10 @@ __Note:__  By default, a request is rejected only if there is a network or timeo
 	// send method format
 	lski.request.send(url, type, dataToSend, optionsToOverride);
 
-The reponse returned is an object containing the following properties: __NB__ If option dataOnly is true then the data will be returned instead of the the following object
+The reponse returned is an object containing the following properties: __NB__ There is an option 'dataOnly' that if set to true will only the data instead of the following object
 
 - data: The data returned from the request as a string
-- options: The options used for the request
+- options: The options used for this sepcific request combined from the global
 - status: The status code of the request e.g. 200, 404, etc
 - statusText: The status text of the request e.g. 'Not found', 'No Content', etc
 - xhr: The original request object used to make the request
@@ -45,9 +51,9 @@ You can choose to override options either on all requests or on individual reque
 
 - Globally, change them on the settings object, e.g:
 
-        lski.request.settings.headers['content-type'] = 'application/json';
+        lski.request.options.headers['content-type'] = 'application/json';
 
-        lski.request.settings.beforeSend = function(req, options) {
+        lski.request.options.beforeSend = function(req, options) {
               // do something here
         };
 
@@ -58,17 +64,26 @@ You can choose to override options either on all requests or on individual reque
                 // Static header
                 'content-type': 'application/json'
                 // Dynamic header called each request
-                'accept': function() {
-                    return 'application/json, text/javascript';
+                'Authorization': function(options) {
+                    return 'Bearer ' + token;
                 }
             }
 		});
 
 The following are the options that can be overriden
 
-- headers {object} __default:__ { 'content-type': 'application/json' }
+- headers {object} __default:__ 
 
-  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a string or function (If a function is called per request)
+        { 
+            "content-type": "application/json",
+            "accept": function(options) {
+                if(options.dataType === lski.request.dataTypes.JSON) {
+                    return "application/json, text/json"
+                }
+            }
+        }
+
+  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a string or function (functions is called per request and recieved a copy of the combined options request options). __NB:__ If the value for a header is null then it wont be added.
 
 - beforeSend {function=} __default:__ null
 
@@ -102,6 +117,10 @@ The following are the options that can be overriden
 
     Only used in combination when dataType = JSON this method is passed to JSON.parse as the reviver method, helpful for formatting dates recieved.
 
+## AMD (UMD) support
+
+By default the module registers itself as a global module 'lski.request', however if AMD or CommonJS exports are detected it will register as an annoymous module.
+
 ## Utils
 
 There is a utils namespace (lski.request.utils) where there is a few useful functions.
@@ -109,15 +128,34 @@ There is a utils namespace (lski.request.utils) where there is a few useful func
 - merge
 
     A deep extend function, doesnt do anything fancy, just overrides or adds a property on the current object with the equivalent on the merging object.
+    
 - isFunction
 
-    Function that accepts a varible and does a simple check to see if it is a callable function.
+    Does a simple check to see if a value is a callable function.
+    
+- isDate
+
+    Does a simple check to see if a value is a Date object
+    
+- isArray
+
+    Does a simple check to see if a value is an Array (Not an array like object e.g. arguments)
 
 ## Extending
 
 As it uses promises it is easy to extend the functionality of the api. The easiest way is to store the current send function and then replace it with a wrapper function that calls the original function internally. That allows you to catch the promise before returning it. Alternatively you can simply wrap the api in a service layer and set the options within that layer.
 
 I will attempt to provide an example when I can.
+
+## Support
+
+Tested against:
+
+- IE8+
+- Firefox
+- Chrome
+- Android
+- Opera
 
 ## Dependancies
 

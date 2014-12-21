@@ -36,12 +36,17 @@
 	/**
 	 * Global settings, any change to this object will effect all requests
 	 */
-	request.settings = {
+	request.options = {
 		/**
 		* The headers that are passed along with each request in property:value pairs. NB: value can either be a string or function, if a function it is called per request.
 		*/
 		headers: {
-			'content-type': 'application/json'
+			"content-type": "application/json",
+            "accept": function(options) {
+                if(options.dataType === _consts.JSON) {
+                    return "application/json, text/json"
+                }
+            }
 		},
 		/**
 		* A function that if set it will be called prior to any request is made and is passed. It recieves the requet object and options used for this request
@@ -76,6 +81,8 @@
 	request.utils = {
 		merge: _merge,
 		isFunction: _isFunction,
+        isDate: _isDate,
+        isArray: _isArray,
 		json: {
 			iso8601Reviver: _iso8601Reviver,
 			msDateReviver: _msDateReviver
@@ -99,7 +106,7 @@
 	*/
 	request.send = function (url, type, data, options) {
 
-		var ops = _createSendOptions(request.settings, options);
+		var ops = _createSendOptions(request.options, options);
 		var prom = _createSendPromise(url, type, ops, _resolveData(data));
 
 		if (ops.rejectOnStatusCode) {
@@ -159,20 +166,43 @@
 	};
 
 	/**
-	 * Simply checks the passed in argument is a callable function
+	 * Checks the passed in argument is a callable function
 	 */
 	function _isFunction(toCheck) {
 		return typeof toCheck === 'function' && !!toCheck.call;
 	}
+    
+    /**
+     * Checks the passed in argument is an array
+     */
+    function _isArray(toCheck) { 
+        return toCheck instanceof Array; 
+    }
+    
+    /**
+     * Checks the passed in argument is a Date
+     */
+    function _isDate(toCheck) {
+        return toCheck instanceof Date;   
+    }
 
 	/**
-	 * Deep merge of objects
+	 * Deep merge or clone of objects
 	 *
-	 * Overrides or adds a property on the current object with the equivalent on the merging object. If the property is an object it then attempts to merge that object too.
-	 * E.g. merge({}, myObj, myObj2) would result in properties in myObj2 overriding myObj, and creating a new object
-	 * E.g. merge(myObj, myObj2) would update the myObj with properties from myObj2
+     * It accepts multiple arguments, the first argument 'out' is the only argument manipulated, and is filled with values from the other arguments passed in, either by overridding or adding
+     * properties from the other arguments, processing moving left to right (arguments[1] then arguments[2] etc). If an argument is null/undefined it is simply ignored.
+     * 
+     * It is regarded as deep because if the value of property is an object it then attempts to merge that object too. 
+     * Also if 'out' is an empty object the method becomes non-destructive, regardless of arguments passed, effectively cloning the second argument and returning the result.
+     * 
+     * @example
+     * // Clones myObj and then override its properties with values from myObj2, before the properties from myObj3 and creating a new object
+	 * var newObj = _merge({}, myObj, myObj2, myObj3)
+     * 
+     * // Updates the myObj with properties from myObj2, if storing the returned value, this will be the same 
+	 * var objThatReferencesMyObj = _merge(myObj, myObj2) 
 	 *
-	 * @returns {Object} The combined object
+	 * @return {Object} The combined object
 	 */
 	function _merge(out) {
 
@@ -192,7 +222,7 @@
 
 					var val = obj[key];
 
-					if (val !== null && typeof val === 'object' && !(val instanceof Date)) {
+					if (val !== null && typeof val === 'object' && !_isDate(val) && !_isArray(val)) {
 
 						out[key] = _merge(out[key], val);
 					}
@@ -243,15 +273,7 @@
 	 * Normalises the options, using the settings as defaults, if options are supplied any matching option in options overides the default.
 	 */
 	function _createSendOptions(defaults, options) {
-
-		var ops = !options ? _merge({}, defaults) : _merge({}, defaults, options);
-
-		// If the dataType being returned should be JSON send the header to tell the server we want it returned
-		if (ops.dataType === _consts.JSON) {
-			ops.headers.accept = 'application/json, text/javascript';
-		}
-
-		return ops;
+        return _merge({}, defaults, options)
 	}
 
 	/**
@@ -292,7 +314,7 @@
 
 					// If a header value is a function then call the function.
 					// Using functions means the headers can be set with current values not just values set before values are known at initialisation time
-					var val = _isFunction(ops.headers[prop]) ? ops.headers[prop]() : ops.headers[prop];
+					var val = _isFunction(ops.headers[prop]) ? ops.headers[prop](ops) : ops.headers[prop];
 					if (val) {
 						req.setRequestHeader(prop, val);
 					}
