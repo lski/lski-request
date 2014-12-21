@@ -1,11 +1,11 @@
-describe("main", function () {
+describe("request", function () {
 
 	beforeEach(function () {
-		lski.request.settings.dataType = lski.request.dataTypes.TEXT;
+		lski.request.options.dataType = lski.request.dataTypes.TEXT;
 	});
 
 	afterEach(function () {
-		lski.request.settings.dataType = lski.request.dataTypes.JSON;
+		lski.request.options.dataType = lski.request.dataTypes.JSON;
 	});
 
 	it("namespace exists", function () {
@@ -32,7 +32,7 @@ describe("main", function () {
 
 	it("headers are correctly sent", function (done) {
 
-		lski.request.send('http://api-echo.azurewebsites.net/headers', 'GET', undefined, { headers: { 'accept': 'application/json' } }).then(function (response) {
+		lski.request.send('http://api-echo.azurewebsites.net/headers', 'GET', undefined, { headers: { 'accept': 'text/plain' } }).then(function (response) {
 
 			console.log("headers are correctly sent", response);
 
@@ -41,7 +41,7 @@ describe("main", function () {
 
 			var headers = JSON.parse(response.data);
 
-			expect(headers.accept).toBe('application/json');
+			expect(headers.accept).toBe('text/plain');
 		})
 		.catch(genericCatch)
 		.then(done);
