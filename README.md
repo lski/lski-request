@@ -16,7 +16,7 @@ Grab the minified file from [dist/lski-request.js](https://github.com/lski/lski-
 
 You make a function call to a url and recieve a promise object in return. That Promise is either resolved or rejected, depending on the success of the ajax request.
 
-__Note:__  By default, a request is rejected only if there is a network or timeout error, otherwise it is resolved. This is independant of the status code of the request as by definition the request itself was a success. This can be overriden in the options by setting rejectOnStatusCode = true
+__Note:__  By default, a request is rejected only if there is a network or timeout error, otherwise it is resolved. This is independent of the status code of the request as by definition the request itself was a success. This can be overridden in the options by setting rejectOnStatusCode = true
 
 ## Examples
 
@@ -28,10 +28,10 @@ __Note:__  By default, a request is rejected only if there is a network or timeo
 	// send method format
 	lski.request.send(url, type, dataToSend, optionsToOverride);
 
-The reponse returned is an object containing the following properties: __NB__ There is an option 'dataOnly' that if set to true will only the data instead of the following object
+The response returned is an object containing the following properties: __NB__ There is an option 'dataOnly' that if set to true will only the data instead of the following object
 
 - data: The data returned from the request as a string
-- options: The options used for this sepcific request combined from the global
+- options: The options used for this specific request combined from the global
 - status: The status code of the request e.g. 200, 404, etc
 - statusText: The status text of the request e.g. 'Not found', 'No Content', etc
 - xhr: The original request object used to make the request
@@ -70,7 +70,7 @@ You can choose to override options either on all requests or on individual reque
             }
 		});
 
-The following are the options that can be overriden
+The following are the options that can be overridden
 
 - headers {object} __default:__ 
 
@@ -83,11 +83,11 @@ The following are the options that can be overriden
             }
         }
 
-  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a string or function (functions is called per request and recieved a copy of the combined options request options). __NB:__ If the value for a header is null then it wont be added.
+  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a string or function (functions are called per request and receive a copy of the combined options request options). __NB:__ If the value for a header is null then it wont be added.
 
 - beforeSend {function=} __default:__ null
 
-  If set it will be called prior to any request is made and is passed, it will recieved the request object and options for this request as arguments.
+  If set it will be called prior to any request is made and is passed, it will receive the request object and options for this request as arguments.
 
 - rejectOnStatusCode {boolean} __default:__ false
 
@@ -115,11 +115,11 @@ The following are the options that can be overriden
 
 - jsonReviver {function=} __default__ null
 
-    Only used in combination when dataType = JSON this method is passed to JSON.parse as the reviver method, helpful for formatting dates recieved.
+    Only used in combination when dataType = JSON this method is passed to JSON.parse as the reviver method, helpful for formatting dates received.
 
 ## AMD (UMD) support
 
-By default the module registers itself as a global module 'lski.request', however if AMD or CommonJS exports are detected it will register as an annoymous module.
+By default the module registers itself as a global module 'lski.request', however if AMD or CommonJS exports are detected it will register as an anonymous module.
 
 ## Utils
 
@@ -127,7 +127,7 @@ There is a utils namespace (lski.request.utils) where there is a few useful func
 
 - merge
 
-    A deep extend function, doesnt do anything fancy, just overrides or adds a property on the current object with the equivalent on the merging object.
+    A deep extend function, doesn't do anything fancy, just overrides or adds a property on the current object with the equivalent on the merging object.
     
 - isFunction
 
@@ -157,10 +157,10 @@ Tested against:
 - Android
 - Opera
 
-## Dependancies
+## Dependencies
 
 By design this package does not depend on any other package, however it does require promises be implemented. Promises are part of the ES6 specification, but are already supported in the newest versions of Chrome, Firefox, Opera, Safari and is planed for IE.
 
 Promises are powerful but easily polyfilled an example shown at [https://www.promisejs.org/polyfills/promise-6.0.0.min.js](https://www.promisejs.org/polyfills/promise-6.0.0.min.js)
 
-But there is alot more information available a good place to start is: [https://www.promisejs.org](https://www.promisejs.org)
+But there is a lot more information available a good place to start is: [https://www.promisejs.org](https://www.promisejs.org)
