@@ -9,10 +9,10 @@ var gulp = require('gulp'),
 
 var projectSettings = {
     name: 'lski-request',
-    version: "1.1.0",
+    version: "1.1.1",
     homepage: 'https://github.com/lski/lski-requestjs',
     description: "A Promise based ajax request helper",
-    "author": "dev@lski.co.uk <dev@lski.co.uk>",
+    "author": "Lee Cooper <lee.cooper@lski.uk>",
     "keywords": [
         "Promise",
         "ajax",
@@ -28,8 +28,9 @@ var packageOnlySettings = {
     }
 };
     
-gulp.task('clean', function(cb) {
-    del('dist', cb);
+gulp.task('clean', function() {
+    
+    return del('dist');
 });
 
 gulp.task('settings', function() {
@@ -50,7 +51,7 @@ gulp.task('dist', ['clean'], function() {
 
     return gulp.src('src/*.js')
         .pipe(concat(projectSettings.name + '.debug.js'))
-        .pipe(insert.prepend('/*!\n * ' + projectSettings.name + ' - ' + projectSettings.version + '\n*/\n'))
+        .pipe(insert.prepend('/*! ' + projectSettings.name + ' - ' + projectSettings.version + ' */\n'))
         .pipe(gulp.dest('dist'));
 });
 
@@ -64,4 +65,4 @@ gulp.task('minify-dist', ['dist'], function () {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['settings', 'minify-dist'], function() {});
+gulp.task('default', ['settings', 'minify-dist']);

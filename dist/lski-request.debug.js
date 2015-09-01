@@ -1,6 +1,4 @@
-/*!
- * lski-request - 1.1.0
-*/
+/*! lski-request - 1.1.1 */
 /*jslint browser: true, white: true */
 /*global define, window, Promise */
 
@@ -124,7 +122,7 @@
 		}
 
 		if (ops.dataType === _consts.JSON) {
-			prom.then(function (response) {
+			prom = prom.then(function (response) {
 
 				response.data = _jsonDataReviver(response.data, response.options);
 				return response;

@@ -121,7 +121,7 @@
 		}
 
 		if (ops.dataType === _consts.JSON) {
-			prom.then(function (response) {
+			prom = prom.then(function (response) {
 
 				response.data = _jsonDataReviver(response.data, response.options);
 				return response;
