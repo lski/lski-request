@@ -72,7 +72,11 @@
 		/**
 		 * Only used in combination with 'dataType: json' this method is passed to JSON.parse as the reviver method, helpful for formatting dates recieved
 		 */
-		jsonReviver: null
+		jsonReviver: null,
+		/**
+		 * The function for generating a XmlHttpRequest object. It is recommended you dont override this function, but is provided in case you need to hook into the direct request object.
+		 */
+		createRequest: _createRequest
 	};
 
 	/**
@@ -304,7 +308,7 @@
 
 		return new Promise(function (resolve, reject) {
 
-			var req = new XMLHttpRequest();
+			var req = ops.createRequest();
 
 			req.open(type, url, true);
 
@@ -355,6 +359,10 @@
 			// Send the request
 			req.send(data);
 		});
+	}
+	
+	function _createRequest() {
+		return new XMLHttpRequest();
 	}
 
 	function _createResolveResponse(xhr, options) {

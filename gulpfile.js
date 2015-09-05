@@ -9,8 +9,8 @@ var gulp = require('gulp'),
 
 var projectSettings = {
     name: 'lski-request',
-    version: "1.1.1",
-    homepage: 'https://github.com/lski/lski-requestjs',
+    version: "1.2.0",
+    homepage: 'https://github.com/lski/lski-request',
     description: "A Promise based ajax request helper",
     "author": "Lee Cooper <lee.cooper@lski.uk>",
     "keywords": [
@@ -24,7 +24,7 @@ var projectSettings = {
 
 var packageOnlySettings = {
     "repository": {
-        "url": "https://github.com/lski/lski-requestjs.git"
+        "url": "https://github.com/lski/lski-request.git"
     }
 };
     
