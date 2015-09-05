@@ -9,7 +9,7 @@ var gulp = require('gulp'),
 
 var projectSettings = {
     name: 'lski-request',
-    version: "1.2.0",
+    version: "1.3.0",
     homepage: 'https://github.com/lski/lski-request',
     description: "A Promise based ajax request helper",
     "author": "Lee Cooper <lee.cooper@lski.uk>",
