@@ -379,11 +379,13 @@
 
 	function _createRejectedResponse(code, reason, xhr, options) {
 
-		return {
-			status: code,
-			statusText: reason,
-			xhr: xhr,
-			options: options
-		};
+		var e = new Error(reason);
+		
+		e.status = code;
+		e.statusText = reason;
+		e.xhr = xhr;
+		e.options = options;
+
+		return e;
 	}
 });
