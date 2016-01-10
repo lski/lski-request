@@ -73,12 +73,12 @@ You can choose to override options either on all requests or on individual reque
 
 The following are the options that can be overridden
 
-- `headers` {object}
+- `headers` {object} 
 
-    The headers object stores the that are passed along with each request in property:value pairs. Values can either be a static string or a function that will be run each time that request is run and can be used to create dynamic values. __NB:__ If the value for a particular header is null when the request is made then that header will not be added at all.
-
+  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a static string or a function that will be run each time that request is run and can be used to create dynamic values. __NB:__ If the value for a particular header is null when the request is made then that header will not be added at all.
+  
+  __default:__
 ```js
-    // Default
     { 
         "content-type": "application/json",
         "accept": function(options) {
@@ -89,37 +89,51 @@ The following are the options that can be overridden
     }
 ```
 
-- `beforeSend` {function=} __default:__ `null`
+  
+
+- `beforeSend` {function=} 
 
   If set it will be called prior to any request is made and is passed, it will receive the request object and options for this request as arguments.
+  
+  __default:__ `null`
 
-- `rejectOnStatusCode` {boolean} __default:__ `false`
+- `rejectOnStatusCode` {boolean} 
 
   By default a request is only rejected if there is a timeout or there is a network fail, If rejectOnStatusCode is true it will also reject the promise if the returned response is has a status code less than 200 or greater 399.
+  
+  __default:__ `false`
 
-- `timeout` {number=} __default:__ `null`
+- `timeout` {number=}
 
-	If set to a number will set the timeout (in milliseconds) that the request will wait before raising an exception, otherwise uses default.
+  If set to a number will set the timeout (in milliseconds) that the request will wait before raising an exception, otherwise uses default.
+	
+  __default:__ `null`
 
-- `dataOnly` {boolean} __default:__ `false`
+- `dataOnly` {boolean} 
 
-    If true will only return the data to the parameter of the Promise when a request is resolved successfully rather than the complete object.
+  If true will only return the data to the parameter of the Promise when a request is resolved successfully rather than the complete object.
+  
+  __default:__ `false`
 
-- `dataType` {number=} __default:__ `lski.request.dataTypes.JSON`
+- `dataType` {number=} 
 
-	States the data type returned from the request. 
+  States the data type returned from the request. 
 
-	- `lski.request.dataTypes.TEXT` 
+  - `lski.request.dataTypes.TEXT` 
 
-		Returns an unaltered version of the data returned as a string
+    Returns an unaltered version of the data returned as a string
 
-	- `lski.request.dataTypes.JSON`
+  - `lski.request.dataTypes.JSON`
+  
+    Returns a javascript object, if nothing is returned data will be null. It also attaches an 'accept: application/json' header so the server knows what to return.
 
-		Returns a javascript object, if nothing is returned data will be null. It also attaches an 'accept: application/json' header so the server knows what to return.
+  __default:__ `lski.request.dataTypes.JSON`
 
-- `jsonReviver` {function=} __default__ `null`
+- `jsonReviver` {function=} 
 
-    Only used in combination when dataType = JSON this method is passed to JSON.parse as the reviver method, helpful for formatting dates received.
+  Only used in combination when dataType = JSON this method is passed to JSON.parse as the reviver method, helpful for formatting dates received.
+    
+  __default__ `null`
 
 ## Extending
 
@@ -131,7 +145,7 @@ Alternatively you can simply wrap the api in a service layer and set the options
 
 ## AMD and CommonJS Support
 
-By default the module registers itself as a global module 'lski.request', however if AMD or CommonJS exports are detected it will register as an anonymous module.
+By default the module registers itself as a global module 'lski.request', however if AMD define or CommonJS exports are detected it will register as an anonymous module.
 
 ## Utils
 
@@ -171,9 +185,9 @@ Tested against:
 
 ## Dependencies
 
-By design this API does not depend on any other package, however it does require promises be implemented. Promises are part of the ES6 specification, but are already supported in the newest versions of Chrome, Firefox, Opera, Safari and MS Edge.
+No package dependancies, although as it is a Promise based API, Promises do need to be supported. 
 
-Promises are powerful but easily poly-filled an example shown at [https://www.promisejs.org/polyfills/promise-6.0.0.min.js](https://www.promisejs.org/polyfills/promise-6.0.0.min.js). There is a lot more information available a good place to start is: [https://www.promisejs.org](https://www.promisejs.org)
+The latest browsers and node all support Promises by default, however if you need to support an older browser there are several ponyfills available to implement them e.g. [es6-promise](https://github.com/jakearchibald/es6-promise) or [bluebird](https://github.com/petkaantonov/bluebird).
 
 ## Build
 
@@ -181,4 +195,4 @@ To build a distribution if you make changes, have node.js installed and ensure t
 
 ## Test
 
-After building the distribution you can run a test to ensure the project still works. You have a couple of options, either via gulp and the command line or via web browser. For gulp in the command line run `gulp test`, which will activate karma via phantomjs and output the results into the console. For the browser, run any web server that can display static files from the root of the project and navigate to `/test`.
+To test the source file you have a couple of options, either via gulp and the command line or via a web browser. For gulp in the command line run `gulp test`, which will activate karma via phantomjs and output the results into the console. For the browser, run any web server that can display static files from the root of the project and navigate to `/test`.
