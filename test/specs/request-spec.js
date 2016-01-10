@@ -1,4 +1,6 @@
 describe("request", function () {
+    
+    var outputResults = false;
 
 	beforeEach(function () {
 		lski.request.options.dataType = lski.request.dataTypes.TEXT;
@@ -10,15 +12,16 @@ describe("request", function () {
 
 	it("namespace exists", function () {
 
-		console.log("namespace exists");
 		expect(lski.request).not.toBe(null);
+        
+        _log("namespace exists");
 	});
 
 	it("basic send request via get", function (done) {
 
 		lski.request.send('http://api-echo.azurewebsites.net/ip', 'GET').then(function (response) {
 
-			console.log("basic send request via get", response);
+			_log("basic send request via get", response);
 
 			expect(response.data).not.toBe(null);
 
@@ -34,7 +37,7 @@ describe("request", function () {
 
 		lski.request.send('http://api-echo.azurewebsites.net/headers', 'GET', undefined, { headers: { 'accept': 'text/plain' } }).then(function (response) {
 
-			console.log("headers are correctly sent", response);
+			_log("headers are correctly sent", response);
 
 			expect(response).not.toBe(null);
 			expect(response.data).not.toBe(null);
@@ -51,7 +54,7 @@ describe("request", function () {
 
 		lski.request.send('http://api-echo.azurewebsites.net/echo', 'POST', JSON.stringify({ a: 1, b: 'test' })).then(function (response) {
 
-			console.log(response, "data sent correctly");
+			_log(response, "data sent correctly");
 
 			expect(response).not.toBe(null);
 			expect(response.data).not.toBe(null);
@@ -68,7 +71,7 @@ describe("request", function () {
 
 		lski.request.get('http://api-echo.azurewebsites.net/notFound').then(function (response) {
 
-			console.log("handles 'not found' correctly (default)", response);
+			_log("handles 'not found' correctly (default)", response);
 
 			expect(response && response.status).toBe(404);
 		})
@@ -82,8 +85,8 @@ describe("request", function () {
 			.then(shouldNotRun)
 			.catch(function (err) {
 
-				console.log("handles 'not found' correctly (rejectOnStatusCode: true)", err);
-
+                _log("handles 'not found' correctly (rejectOnStatusCode: true)", err);
+                
 				expect(err && err.status).toBe(404);
 			})
 			.then(done);
@@ -108,4 +111,13 @@ describe("request", function () {
 			throw new Error(err);
 		}).not.toThrow();
 	}
+    
+    /**
+     * Simply outputs the details responses of the requests
+     */
+    function _log() {
+        if(outputResults) {
+            console.log.apply(console, arguments);
+        }
+    }
 });

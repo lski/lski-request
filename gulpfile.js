@@ -5,11 +5,12 @@ var gulp = require('gulp'),
     jeditor = require("gulp-json-editor"),
     insert = require('gulp-insert'),
     rename = require('gulp-rename'),
-    merge = require('merge-stream');
+    merge = require('merge-stream'),
+    TestServer = require('karma').Server;
 
 var projectSettings = {
     name: 'lski-request',
-    version: "1.3.0",
+    version: "1.3.1",
     homepage: 'https://github.com/lski/lski-request',
     description: "A Promise based ajax request helper",
     "author": "Lee Cooper <lee.cooper@lski.uk>",
@@ -66,3 +67,15 @@ gulp.task('minify-dist', ['dist'], function () {
 });
 
 gulp.task('default', ['settings', 'minify-dist']);
+
+/**
+ * Run Jasmine tests in Karma
+ */
+gulp.task('test', function(done) {
+    
+    new TestServer({
+        configFile: __dirname + '/test/karma.conf.js',
+        singleRun: true
+    }, done).start();
+    
+});

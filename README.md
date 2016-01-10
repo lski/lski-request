@@ -1,8 +1,12 @@
 # Lski-Request
 
-An ajax module that returns a Promise object from a simple function call. It tries to be as un-opinionated as possible so everything is flexible and extendible.
+An ajax module that returns a Promise object from a simple function call that contains the data, if any, returned. It tries to be as un-opinionated as possible, so has lots of options and is extendible.
 
 ## Installation
+
+`npm install lski-request --save`
+
+or
 
 `bower install lski-request --save`
 
@@ -12,16 +16,15 @@ Grab the minified file from [dist/lski-request.js](https://github.com/lski/lski-
 
 ## Usage
 
-You make a function call to a url, optionally with data and receive a promise object in return. That Promise object is either resolved or rejected, depending on the success of the ajax request. Options can also be supplied either globally or on a per request.
+A function call to a url, optionally with data and receive a promise object in return. That Promise object is either resolved or rejected, depending on the success of the ajax request. Options can also be supplied either globally or on a per request.
 
-__Note:__ By default, a request is rejected only if there is a network or timeout error, otherwise it is resolved. This is independent of the status code of the request as by definition the request itself was a success. This can be overridden in the options by setting rejectOnStatusCode = true. Also by default requests are made as and accept JSON, however this is easily overridden by setting the dataType to `lski.request.dataTypes.TEXT`.
+__Note:__ Using the default options, a request is rejected only if there is a network or timeout error, otherwise it is resolved as a success. e.g. 404/500 is still a success. Also requests are made as and accept JSON. Both of these can be overridden in the options (see Options)
 
 ## Examples
 
 ```js
 // Simple get request
 lski.request.send('your/url/to/a/service', 'GET').then(function(response) {
-    
     // do something with the response
 });
 
@@ -29,7 +32,7 @@ lski.request.send('your/url/to/a/service', 'GET').then(function(response) {
 lski.request.send(url, type, dataToSend, optionsToOverride);
 ```
 
-The response returned is an object containing the following properties: __NB__ There is an option 'dataOnly' that if set to true will only the data instead of the following object
+The response returned is an object containing the following properties: *__NB__ There is an option 'dataOnly' that if set to true will only return the data instead of the following object*
 
 - data: The data returned from the request as a string
 - options: The options used for this specific request combined from the global
@@ -43,7 +46,7 @@ There is also four alias methods for convenience, which internally call the send
     lski.request.get(url, options);
     lski.request.post(url, data, options);
     lski.request.put(url, data, options);
-    lski.request.del(url, options); // or lski.request['delete'](url, options);
+    lski.request.del(url, options); // or lski.request['delete'](url, options); for earlier IE browsers
 ```
 
 _To learn more about Promises see below for additional information._
@@ -52,36 +55,30 @@ _To learn more about Promises see below for additional information._
 
 You can choose to override options either on all requests or on individual requests as shown below.
 
-- Globally, change them on the settings object, e.g:
-
 ```js
-    lski.request.options.headers['content-type'] = 'application/json';
-    
+    //Globally, change them on the settings object, e.g:
+    lski.request.options.timeout = 60;
     lski.request.options.beforeSend = function(req, options) {
             // do something here
     };
-```
-
-- Per request, pass the option to override as the last argument, e.g:
-
-```js
+    
+    //Per request, pass the option to override as the last argument, e.g:
     lski.request.send('your/url', 'GET', null, {
-        headers: {
-            // Static header
-            'content-type': 'application/json'
-            // Dynamic header called each request
-            'Authorization': function(options) {
-                return 'Bearer ' + token;
-            }
+        timeout: 60,
+        beforeSend: function(req, options) {
+            // do something here
         }
     });
 ```
 
 The following are the options that can be overridden
 
-- headers {object} __default:__ 
+- `headers` {object}
+
+    The headers object stores the that are passed along with each request in property:value pairs. Values can either be a static string or a function that will be run each time that request is run and can be used to create dynamic values. __NB:__ If the value for a particular header is null when the request is made then that header will not be added at all.
 
 ```js
+    // Default
     { 
         "content-type": "application/json",
         "accept": function(options) {
@@ -92,15 +89,13 @@ The following are the options that can be overridden
     }
 ```
 
-  The headers object stores the that are passed along with each request in property:value pairs. Values can either be a strings and therefore static or functions that can be used to create dynamic values and are called on each request. __NB:__ If the value for a header is null then it wont be added.
-
 - `beforeSend` {function=} __default:__ `null`
 
   If set it will be called prior to any request is made and is passed, it will receive the request object and options for this request as arguments.
 
 - `rejectOnStatusCode` {boolean} __default:__ `false`
 
-  If true will also reject the promise if the returned response is has a status code less than 200 or greater 399
+  By default a request is only rejected if there is a timeout or there is a network fail, If rejectOnStatusCode is true it will also reject the promise if the returned response is has a status code less than 200 or greater 399.
 
 - `timeout` {number=} __default:__ `null`
 
@@ -128,11 +123,13 @@ The following are the options that can be overridden
 
 ## Extending
 
-As it uses promises it is easy to extend the functionality of the api, the easiest way is to 'monkey patch' the `send` function. To do this store the current send function and then replace it with a wrapper function that calls the original function internally. That allows you to catch the promise before returning it. 
+As it uses promises it is easy to extend the functionality of the api, the easiest way is to 'monkey patch' the `send` function. 
+
+To do this store the current send function and then replace it with a wrapper function that calls the original function internally. That allows you to catch the promise before returning it. 
 
 Alternatively you can simply wrap the api in a service layer and set the options within that layer.
 
-## AMD (UMD) support
+## AMD and CommonJS Support
 
 By default the module registers itself as a global module 'lski.request', however if AMD or CommonJS exports are detected it will register as an anonymous module.
 
@@ -151,16 +148,16 @@ There is a utils namespace (lski.request.utils) where there are a few useful fun
 - `isDate`
 
     Does a simple check to see if a value is a Date object
-    
+   
 - `isArray`
 
     Does a simple check to see if a value is an Array (Not an array like object e.g. arguments)
 
 ## Cors (Cross-Origin Resource Sharing) 
 
-As most modern browsers support Cors requests now, this API simply 'works' with Cors requests and deliberately does not do anything to poly-fill CORS requests for browsers that dont support it. This is because it would bloat the API and would only be for a small percentage of browsers that also happen to make Cors requests.
+As most modern browsers support Cors requests now, this API simply 'works' with Cors requests and deliberately does not do anything to poly-fill CORS requests for the few browsers (IE 9 and below) that dont support it. However this was decided as it would bloat the API when only a few scenerios require it.
 
-If you need to support a browser that doesnt support Cors requests and actually needs to make some Cors requests there are several techniques and poly-fills available to you E.g. [Xdomain](https://github.com/jpillora/xdomain). Although not recommended, it is also possible to change the function that generates the XmHttpRequest object to support some more advanced extension of the API, for instance to use an XDomainRequest rather than an XmlHttpRequest object.
+If you need to support a browser that doesnt support Cors requests and actually needs to make some Cors requests there are several techniques and poly-fills available to you E.g. [Xdomain](https://github.com/jpillora/xdomain). Although not recommended, it is also possible to change the function `_createRequest()` that generates the XmHttpRequest object to support some more advanced extension of the API, for instance to use an XDomainRequest rather than an XmlHttpRequest object.
 
 ## Support
 
@@ -177,3 +174,11 @@ Tested against:
 By design this API does not depend on any other package, however it does require promises be implemented. Promises are part of the ES6 specification, but are already supported in the newest versions of Chrome, Firefox, Opera, Safari and MS Edge.
 
 Promises are powerful but easily poly-filled an example shown at [https://www.promisejs.org/polyfills/promise-6.0.0.min.js](https://www.promisejs.org/polyfills/promise-6.0.0.min.js). There is a lot more information available a good place to start is: [https://www.promisejs.org](https://www.promisejs.org)
+
+## Build
+
+To build a distribution if you make changes, have node.js installed and ensure the local packages are installed by running `npm install` from the command line then run `gulp` from the command line, which will build the source files.
+
+## Test
+
+After building the distribution you can run a test to ensure the project still works. You have a couple of options, either via gulp and the command line or via web browser. For gulp in the command line run `gulp test`, which will activate karma via phantomjs and output the results into the console. For the browser, run any web server that can display static files from the root of the project and navigate to `/test`.

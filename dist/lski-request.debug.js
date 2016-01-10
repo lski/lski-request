@@ -1,4 +1,4 @@
-/*! lski-request - 1.3.0 */
+/*! lski-request - 1.3.1 */
 /*jslint browser: true, white: true */
 /*global define, window, Promise */
 
