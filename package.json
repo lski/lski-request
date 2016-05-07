@@ -33,5 +33,8 @@
     "request"
   ],
   "license": "MIT",
-  "main": "dist/lski-request.js"
+  "main": "dist/lski-request.js",
+  "scripts": {
+      "test": "gulp test"
+  }
 }
