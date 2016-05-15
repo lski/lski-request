@@ -1,24 +1,24 @@
-/*jslint browser: true, white: true */
-/*global define, window, Promise */
+/* global define, Promise, exports */
 
 (function (root, factory) {
 
-	"use strict";
+	'use strict';
 
 	if (typeof define === 'function' && define['amd']) {
-		define(['exports'], factory);
+		define(['exports'], function(exports) { 
+			return factory(exports, root); 
+		});
 	}
 	else if (typeof exports === 'object') {
-		factory(exports);
+		factory(exports, root);
 	}
 	else {
-		root.lski = root.lski || {};
-		factory(root.lski.request = {});
+		factory((root.lski = root.lski || {}).request = {});
 	}
 
-})(this, function (request) {
+})(this, function (request, root) {
 
-	"use strict";
+	'use strict';
 
 	var _consts = {
 		JSON: 1,
@@ -41,12 +41,12 @@
 		* The headers that are passed along with each request in property:value pairs. NB: value can either be a string or function, if a function it is called per request.
 		*/
 		headers: {
-			"content-type": "application/json",
-            "accept": function(options) {
-                if(options.dataType === _consts.JSON) {
-                    return "application/json, text/json"
-                }
-            }
+			'content-type': 'application/json',
+			'accept': function (options) {
+				if (options.dataType === _consts.JSON) {
+					return 'application/json, text/json';
+				}
+			}
 		},
 		/**
 		* A function that if set it will be called prior to any request is made and is passed. It recieves the requet object and options used for this request
@@ -85,8 +85,8 @@
 	request.utils = {
 		merge: _merge,
 		isFunction: _isFunction,
-        isDate: _isDate,
-        isArray: _isArray,
+		isDate: _isDate,
+		isArray: _isArray,
 		json: {
 			iso8601Reviver: _iso8601Reviver,
 			msDateReviver: _msDateReviver
@@ -175,37 +175,38 @@
 	function _isFunction(toCheck) {
 		return typeof toCheck === 'function' && !!toCheck.call;
 	}
-    
-    /**
-     * Checks the passed in argument is an array
-     */
-    function _isArray(toCheck) { 
-        return toCheck instanceof Array; 
-    }
-    
-    /**
-     * Checks the passed in argument is a Date
-     */
-    function _isDate(toCheck) {
-        return toCheck instanceof Date;   
-    }
+
+	/**
+	 * Checks the passed in argument is an array
+	 */
+	function _isArray(toCheck) {
+		return toCheck instanceof Array;
+	}
+
+	/**
+	 * Checks the passed in argument is a Date
+	 */
+	function _isDate(toCheck) {
+		return toCheck instanceof Date;
+	}
 
 	/**
 	 * Deep merge or clone of objects
 	 *
-     * It accepts multiple arguments, the first argument 'out' is the only argument manipulated, and is filled with values from the other arguments passed in, either by overridding or adding
-     * properties from the other arguments, processing moving left to right (arguments[1] then arguments[2] etc). If an argument is null/undefined it is simply ignored.
-     * 
-     * It is regarded as deep because if the value of property is an object it then attempts to merge that object too. 
-     * Also if 'out' is an empty object the method becomes non-destructive, regardless of arguments passed, effectively cloning the second argument and returning the result.
-     * 
-     * @example
-     * // Clones myObj and then override its properties with values from myObj2, before the properties from myObj3 and creating a new object
+	 * It accepts multiple arguments, the first argument 'out' is the only argument manipulated, and is filled with values from the other arguments passed in, either by overridding or adding
+	 * properties from the other arguments, processing moving left to right (arguments[1] then arguments[2] etc). If an argument is null/undefined it is simply ignored.
+	 * 
+	 * It is regarded as deep because if the value of property is an object it then attempts to merge that object too. 
+	 * Also if 'out' is an empty object the method becomes non-destructive, regardless of arguments passed, effectively cloning the second argument and returning the result.
+	 * 
+	 * @example
+	 * // Clones myObj and then override its properties with values from myObj2, before the properties from myObj3 and creating a new object
 	 * var newObj = _merge({}, myObj, myObj2, myObj3)
-     * 
-     * // Updates the myObj with properties from myObj2, if storing the returned value, this will be the same 
+	 * 
+	 * // Updates the myObj with properties from myObj2, if storing the returned value, this will be the same 
 	 * var objThatReferencesMyObj = _merge(myObj, myObj2) 
 	 *
+	 * @param {Object} out The object to fill
 	 * @return {Object} The combined object
 	 */
 	function _merge(out) {
@@ -265,7 +266,7 @@
 	 */
 	function _msDateReviver(key, value) {
 
-		if (typeof value === 'string' && value.match("^/Date\\((\\d+)\\)/$")) {
+		if (typeof value === 'string' && value.match('^/Date\\((\\d+)\\)/$')) {
 
 			return new Date(parseInt(value.replace(/\/Date\((-?\d+)\)\//, '$1')));
 		}
@@ -277,7 +278,7 @@
 	 * Normalises the options, using the settings as defaults, if options are supplied any matching option in options overides the default.
 	 */
 	function _createSendOptions(defaults, options) {
-        return _merge({}, defaults, options)
+		return _merge({}, defaults, options);
 	}
 
 	/**
@@ -312,16 +313,24 @@
 
 			req.open(type, url, true);
 
-			for (var prop in (ops.headers || {})) {
+			try {
+				for (var prop in (ops.headers || {})) {
 
-				if (Object.prototype.hasOwnProperty.call(ops.headers, prop)) {
+					// double check this property is in fact from the headers object
+					if (Object.prototype.hasOwnProperty.call(ops.headers, prop)) {
 
-					// If a header value is a function then call the function.
-					// Using functions means the headers can be set with current values not just values set before values are known at initialisation time
-					var val = _isFunction(ops.headers[prop]) ? ops.headers[prop](ops) : ops.headers[prop];
-					if (val) {
-						req.setRequestHeader(prop, val);
+						// If a header value is a function then call the function.
+						// Using functions means the headers can be set with current values not just values set before values are known at initialisation time
+						var val = _isFunction(ops.headers[prop]) ? ops.headers[prop](ops) : ops.headers[prop];
+						if (val) {
+							req.setRequestHeader(prop, val);
+						}
 					}
+				}
+			}
+			catch (e) {
+				if(root.console && typeof root.console.log === 'string') {
+					root.console('When using XDomainRequest you can not set custom headers');
 				}
 			}
 
@@ -331,24 +340,24 @@
 					if (req.readyState === 4) {
 						resolve(_createResolveResponse(req, ops));
 					}
-				}
+				};
 			}
 			else {
 				req.onload = function () {
 					resolve(_createResolveResponse(req, ops));
-				}
+				};
 			}
 
 			req.onerror = function () {
-				reject(_createRejectedResponse(null, "Network", req, ops));
+				reject(_createRejectedResponse(null, 'Network', req, ops));
 			};
 
 			// If a timeout is set in the settings then catch any timeout errors
 			if (ops.timeout && !isNaN(ops.timeout)) {
 				req.timeout = ops.timeout;
 				req.ontimeout = function () {
-					reject(_createRejectedResponse(null, "Timeout", req, ops));
-				}
+					reject(_createRejectedResponse(null, 'Timeout', req, ops));
+				};
 			}
 
 			// If the caller added a before send function run it now
@@ -360,7 +369,7 @@
 			req.send(data);
 		});
 	}
-	
+
 	function _createRequest() {
 		return new XMLHttpRequest();
 	}
@@ -370,7 +379,7 @@
 		// Normalize IE's response to HTTP 204 == 1223.
 		return {
 			status: xhr.status === 1223 ? 204 : xhr.status,
-			statusText: xhr.status === 1223 ? "No Content" : xhr.statusText,
+			statusText: xhr.status === 1223 ? 'No Content' : xhr.statusText,
 			data: xhr.responseText,
 			options: options,
 			xhr: xhr
@@ -380,7 +389,7 @@
 	function _createRejectedResponse(code, reason, xhr, options) {
 
 		var e = new Error(reason);
-		
+
 		e.status = code;
 		e.statusText = reason;
 		e.xhr = xhr;

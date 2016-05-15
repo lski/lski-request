@@ -29,7 +29,7 @@ describe("request", function () {
 
 			expect(data.ip).not.toBe(null);
 		})
-		.catch(genericCatch)
+		["catch"](genericCatch)
 		.then(done);
 	});
 
@@ -46,7 +46,7 @@ describe("request", function () {
 
 			expect(headers.accept).toBe('text/plain');
 		})
-		.catch(genericCatch)
+		["catch"](genericCatch)
 		.then(done);
 	});
 
@@ -63,7 +63,7 @@ describe("request", function () {
 
 			expect(args.a).toBe(1);
 		})
-		.catch(genericCatch)
+		["catch"](genericCatch)
 		.then(done);
 	});
 
@@ -75,7 +75,7 @@ describe("request", function () {
 
 			expect(response && response.status).toBe(404);
 		})
-		.catch(shouldNotRun)
+		["catch"](shouldNotRun)
 		.then(done);
 	});
 
@@ -83,7 +83,7 @@ describe("request", function () {
 
 		lski.request.get('http://api-echo.azurewebsites.net/notFound', { rejectOnStatusCode: true })
 			.then(shouldNotRun)
-			.catch(function (err) {
+			["catch"](function (err) {
 
                 _log("handles 'not found' correctly (rejectOnStatusCode: true)", err);
                 

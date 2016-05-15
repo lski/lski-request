@@ -6,76 +6,61 @@ var gulp = require('gulp'),
     insert = require('gulp-insert'),
     rename = require('gulp-rename'),
     merge = require('merge-stream'),
+    clone = require('gulp-clone'),
+    settings = require("./package.json"),
     TestServer = require('karma').Server;
-
-var projectSettings = {
-    name: 'lski-request',
-    version: "1.3.1",
-    homepage: 'https://github.com/lski/lski-request',
-    description: "A Promise based ajax request helper",
-    "author": "Lee Cooper <lee.cooper@lski.uk>",
-    "keywords": [
-        "Promise",
-        "ajax",
-        "request"
-    ],
-    "license": "MIT",
-    "main": "dist/lski-request.js",
-};
 
 var packageOnlySettings = {
     "repository": {
         "url": "https://github.com/lski/lski-request.git"
     }
 };
-    
-gulp.task('clean', function() {
-    
+
+gulp.task('clean', function () {
+
     return del('dist');
 });
 
-gulp.task('settings', function() {
+gulp.task('settings', function () {
 
-    var pkg = gulp.src("./package.json")
-        .pipe(jeditor(projectSettings))
-        .pipe(jeditor(packageOnlySettings))
-        .pipe(gulp.dest('./'));
-    
-    var bwr = gulp.src("./bower.json")
-        .pipe(jeditor(projectSettings))
-        .pipe(gulp.dest('./'));
-    
-    return merge(pkg, bwr);
-});
-
-gulp.task('dist', ['clean'], function() {
-
-    return gulp.src('src/*.js')
-        .pipe(concat(projectSettings.name + '.debug.js'))
-        .pipe(insert.prepend('/*! ' + projectSettings.name + ' - ' + projectSettings.version + ' */\n'))
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('minify-dist', ['dist'], function () {
-
-    return gulp.src('dist/*.js')
-        .pipe(uglify({ preserveComments: 'some' }))
-        .pipe(rename(function(path) {
-            path.basename = path.basename.replace(/\.[^.]*/, '');
+    return gulp.src("./bower.json")
+        .pipe(jeditor({
+            "homepage": settings.homepage,
+            "description": settings.description,
+            "author": settings.author,
+            "keywords": settings.keywords,
+            "main": settings.main
         }))
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('./'));
 });
 
-gulp.task('default', ['settings', 'minify-dist']);
+gulp.task('dist', ['clean'], function () {
+
+    var debug = gulp.src('src/*.js')
+        .pipe(concat(settings.name + '.debug.js'))
+        .pipe(insert.prepend('/*! ' + settings.name + ' - ' + settings.version + ' */\n'));
+        
+
+    var min = debug.pipe(clone())
+        .pipe(uglify({ preserveComments: 'some' }))
+        .pipe(rename(function (path) {
+            path.basename = path.basename.replace(/\.[^.]*/, '');
+        }));
+        
+        return merge(debug, min)
+            .pipe(gulp.dest('dist'));
+});
+
+gulp.task('default', ['settings', 'dist']);
 
 /**
  * Run Jasmine tests in Karma
  */
-gulp.task('test', function(done) {
-    
+gulp.task('test', ['default'], function (done) {
+
     new TestServer({
         configFile: __dirname + '/test/karma.conf.js',
         singleRun: true
     }, done).start();
-    
+
 });

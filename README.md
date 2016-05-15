@@ -174,9 +174,11 @@ There is a utils namespace (lski.request.utils) where there are a few useful fun
 
 ## Cors (Cross-Origin Resource Sharing) 
 
-As most modern browsers support Cors requests now, this API tries not to 'fix' the implementation as it would bload the API for edge cases.
+As most modern browsers support Cors requests now, this API does not try not to 'fix' the implementation as it would bload the API for edge cases.
 
-If you need to support older browsers with CORS I recommend using a polyfill. The polyfill I have used with this APIis [XDomain](https://github.com/jpillora/xdomain) so I would recommend looking at that.
+If you need to support older browsers with CORS I recommend using a polyfill. The polyfill I have used with this API is [XDomain](https://github.com/jpillora/xdomain) so I would recommend looking at that. 
+
+However if you need to use XDomainRequest you can set the `createRequest` function on options (either globally or per-request) to return the XDomainRequest object rather than an XmlHttpRequest object.
 
 ## Browser Support
 
