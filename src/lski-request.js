@@ -1,7 +1,7 @@
 /* global define, Promise, exports */
 
 (function (root, factory) {
-
+	
 	'use strict';
 
 	if (typeof define === 'function' && define['amd']) {
@@ -13,10 +13,10 @@
 		factory(exports, root);
 	}
 	else {
-		factory((root.lski = root.lski || {}).request = {});
+		factory((root.lski = root.lski || {}).request = {}, root);
 	}
 
-})(this, function (request, root) {
+})(this, function (request, root, undefined) {
 
 	'use strict';
 
@@ -111,7 +111,7 @@
 	request.send = function (url, type, data, options) {
 
 		var ops = _createSendOptions(request.options, options);
-		var prom = _createSendPromise(url, type, ops, _resolveData(data));
+		var prom = _createSendPromise(url, type, ops, _resolveSendData(data));
 
 		if (ops.rejectOnStatusCode) {
 			prom = prom.then(function (response) {
@@ -280,12 +280,33 @@
 	function _createSendOptions(defaults, options) {
 		return _merge({}, defaults, options);
 	}
+	
+	/**
+	 * A single cachable no operation function, so makes it easier for minifiers and can reduce objects in memory.
+	 */
+	function _noop() {
+		// Nothing to see here
+	}
+	
+	// Cache the types, with fallbacks ready to be checked on resolve
+	var _arrayBufferType = root.ArrayBuffer || _noop;
+	var _formDataType = root.FormData || _noop;
+	var _blobType = root.Blob || _noop;
 
 	/**
 	 * Cleans the data to be sent, using JSON.stringify to convert anything thats not already a string into a string.
 	 */
-	function _resolveData(data) {
-		return (typeof data === 'string' ? data : JSON.stringify(data));
+	function _resolveSendData(data) {
+		
+		if(data === null || data === undefined) {
+			return null;
+		}
+		
+		if(typeof data === 'string' || data instanceof _blobType || data instanceof _formDataType || data instanceof _arrayBufferType || data.buffer instanceof _arrayBufferType) {
+			return data;
+		}
+		
+		return JSON.stringify(data);
 	}
 
 	/**

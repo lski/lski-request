@@ -1,5 +1,5 @@
 describe("request", function () {
-    
+
     var outputResults = false;
 
 	beforeEach(function () {
@@ -13,13 +13,14 @@ describe("request", function () {
 	it("namespace exists", function () {
 
 		expect(lski.request).not.toBe(null);
-        
+
         _log("namespace exists");
 	});
 
 	it("basic send request via get", function (done) {
 
-		lski.request.send('http://api-echo.azurewebsites.net/ip', 'GET').then(function (response) {
+		var url = 'http://api-echo.azurewebsites.net/ip';
+		var handler = function (response) {
 
 			_log("basic send request via get", response);
 
@@ -28,14 +29,21 @@ describe("request", function () {
 			var data = JSON.parse(response.data);
 
 			expect(data.ip).not.toBe(null);
-		})
-		["catch"](genericCatch)
-		.then(done);
+		};
+
+		lski.request.send(url, 'GET').then(handler)["catch"](genericCatch).then(done);
 	});
 
 	it("headers are correctly sent", function (done) {
 
-		lski.request.send('http://api-echo.azurewebsites.net/headers', 'GET', undefined, { headers: { 'accept': 'text/plain' } }).then(function (response) {
+		var url = 'http://api-echo.azurewebsites.net/headers';
+		var data = undefined;
+		var options = {
+			headers: {
+				'accept': 'text/plain'
+			}
+		};
+		var handler = function (response) {
 
 			_log("headers are correctly sent", response);
 
@@ -45,14 +53,19 @@ describe("request", function () {
 			var headers = JSON.parse(response.data);
 
 			expect(headers.accept).toBe('text/plain');
-		})
-		["catch"](genericCatch)
-		.then(done);
+		};
+
+		lski.request.send(url, 'GET', data, options).then(handler)["catch"](genericCatch).then(done);
 	});
 
 	it("data sent correctly", function (done) {
 
-		lski.request.send('http://api-echo.azurewebsites.net/echo', 'POST', JSON.stringify({ a: 1, b: 'test' })).then(function (response) {
+		var url = 'http://api-echo.azurewebsites.net/echo';
+		var data = {
+			a: 1,
+			b: 'test'
+		};
+		var handler = function (response) {
 
 			_log(response, "data sent correctly");
 
@@ -62,34 +75,110 @@ describe("request", function () {
 			var args = JSON.parse(response.data);
 
 			expect(args.a).toBe(1);
-		})
-		["catch"](genericCatch)
-		.then(done);
+		};
+
+		lski.request.send(url, 'POST', data).then(handler)["catch"](genericCatch).then(done);
 	});
+
+	it("data sent correctly (Pre created)", function (done) {
+
+		var url = 'http://api-echo.azurewebsites.net/echo';
+		var data = JSON.stringify({ a: 1, b: 'test' });
+		var handler = function (response) {
+
+			_log(response, "data sent correctly");
+
+			expect(response).not.toBe(null);
+			expect(response.data).not.toBe(null);
+
+			var args = JSON.parse(response.data);
+
+			expect(args.a).toBe(1);
+		};
+
+		lski.request.send(url, 'POST', data).then(handler)["catch"](genericCatch).then(done);
+	});
+
+	it("data sent correctly (URL Encoded)", function (done) {
+
+		var url = 'http://api-echo.azurewebsites.net/echo';
+		var data = "a=1&b=test";
+		var options = {
+			dataType: null,
+			headers: {
+				accept: null,
+				"content-type": null
+			}
+		};
+		var handler = function (response) {
+
+			_log(response, "data sent correctly");
+
+			expect(response).not.toBe(null);
+			expect(response.data).not.toBe(null);
+			expect(response.data).toBe("a=1&b=test");
+		};
+
+		lski.request.send(url, 'POST', data, options).then(handler)["catch"](genericCatch).then(done);
+	});
+
+	if (window.FormData) {
+
+		it("data sent correctly (FormData)", function (done) {
+
+			var url = 'http://api-echo.azurewebsites.net/echo';
+			var options = {
+				dataType: null,
+				headers: {
+					accept: null,
+					"content-type": null
+				}
+			};
+
+			var data = new FormData();
+			data.append("a", 1);
+			data.append("b", "test");
+			
+			var handler = function (response) {
+
+				_log(response, "data sent correctly");
+
+				expect(response).not.toBe(null);
+				expect(response.data).not.toBe(null);
+				expect(response.data).toEqual(jasmine.stringMatching(/^----/));
+			};
+
+			lski.request.send(url, 'POST', data, options).then(handler)["catch"](genericCatch).then(done);
+		});
+	}
 
 	it("handles 'not found' correctly (default)", function (done) {
 
-		lski.request.get('http://api-echo.azurewebsites.net/notFound').then(function (response) {
+		var url = 'http://api-echo.azurewebsites.net/notFound';
+		var handler = function (response) {
 
 			_log("handles 'not found' correctly (default)", response);
 
 			expect(response && response.status).toBe(404);
-		})
-		["catch"](shouldNotRun)
-		.then(done);
+		};
+
+		lski.request.get(url).then(handler)["catch"](shouldNotRun).then(done);
 	});
 
 	it("handles 'not found' correctly (rejectOnStatusCode: true)", function (done) {
 
-		lski.request.get('http://api-echo.azurewebsites.net/notFound', { rejectOnStatusCode: true })
-			.then(shouldNotRun)
-			["catch"](function (err) {
+		var url = 'http://api-echo.azurewebsites.net/notFound';
+		var options = {
+			rejectOnStatusCode: true
+		};
+		var handler = function (err) {
 
-                _log("handles 'not found' correctly (rejectOnStatusCode: true)", err);
-                
-				expect(err && err.status).toBe(404);
-			})
-			.then(done);
+			_log("handles 'not found' correctly (rejectOnStatusCode: true)", err);
+
+			expect(err && err.status).toBe(404);
+		};
+
+		lski.request.get(url, options).then(shouldNotRun)["catch"](handler).then(done);
 	});
 
 	/**
@@ -111,12 +200,12 @@ describe("request", function () {
 			throw new Error(err);
 		}).not.toThrow();
 	}
-    
+
     /**
      * Simply outputs the details responses of the requests
      */
     function _log() {
-        if(outputResults) {
+        if (outputResults) {
             console.log.apply(console, arguments);
         }
     }

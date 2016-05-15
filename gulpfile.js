@@ -10,12 +10,6 @@ var gulp = require('gulp'),
     settings = require("./package.json"),
     TestServer = require('karma').Server;
 
-var packageOnlySettings = {
-    "repository": {
-        "url": "https://github.com/lski/lski-request.git"
-    }
-};
-
 gulp.task('clean', function () {
 
     return del('dist');
@@ -56,7 +50,7 @@ gulp.task('default', ['settings', 'dist']);
 /**
  * Run Jasmine tests in Karma
  */
-gulp.task('test', ['default'], function (done) {
+gulp.task('test', function (done) {
 
     new TestServer({
         configFile: __dirname + '/test/karma.conf.js',
