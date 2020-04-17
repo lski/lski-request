@@ -1,5 +1,11 @@
 # Lski-Request
 
+## Deprecated
+
+This project is no longer actively used as it has been mostly superceeded by the browser built-in fetch and also the [axios](https://github.com/axios/axios) that is actively maintained. 
+
+-----
+
 A micro ajax module (only 2.77kb or 1.2kb gzipped) that provides a simple way to make ajax requests and returns a Promise object.
 
 ```javascript
